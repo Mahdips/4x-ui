@@ -728,7 +728,9 @@
         "autoSystemDnsToGateway": "Системний DNS на шлюз",
         "autoSystemDnsToGatewayTooltip": "Лише Linux: спрямовує systemd-resolved на шлюз TUN, щоб системні запити йшли через Xray. Потрібен шлюз; у разі помилки TUN не запуститься.",
         "autoSystemWfpBlockLeak": "Блокування витоків (WFP)",
-        "autoSystemWfpBlockLeakTooltip": "Лише Windows, разом з авто-маршрутами системи: dns утримує DNS усередині TUN (потрібні DNS-сервери), misconfigtun блокує версію IP, яку жоден маршрут не веде в TUN."
+        "autoSystemWfpBlockLeakTooltip": "Лише Windows, разом з авто-маршрутами системи: dns утримує DNS усередині TUN (потрібні DNS-сервери), misconfigtun блокує версію IP, яку жоден маршрут не веде в TUN.",
+        "usageMultiplier": "Usage multiplier",
+        "usageMultiplierHelp": "Scales this inbound's counted traffic before it is billed against client quotas. 1.0 means real usage, 2.0 bills twice, 0.5 bills half."
       },
       "info": {
         "mode": "Режим",
@@ -1776,7 +1778,23 @@
       "subIncyResolveDnsDomainDesc": "URL DoH-сервера, зазвичай закінчується на /dns-query.",
       "subIncyResolveDnsIp": "IP DoH-сервера",
       "subIncyResolveDnsIpDesc": "IP DoH-сервера для bootstrap.",
-      "subIncyGroupRouting": "Маршрутизація"
+      "subIncyGroupRouting": "Маршрутизація",
+      "admins": "Panel admins",
+      "adminsDesc": "Accounts that can sign in to this panel. A limited admin manages inbounds and clients only.",
+      "adminRole": "Role",
+      "adminRoleAdmin": "Full admin",
+      "adminRoleLimited": "Limited admin",
+      "adminRoleAdminDesc": "Full control: inbounds, clients, settings, xray config, backup, server.",
+      "adminRoleLimitedDesc": "Inbounds and clients only. Cannot open settings, xray config, backup or server control.",
+      "addAdmin": "Add admin",
+      "adminUsername": "Username",
+      "adminPassword": "Password",
+      "adminEnabled": "Enabled",
+      "adminOwner": "Owner",
+      "adminDeleteConfirm": "Delete this admin account?",
+      "adminDeleteSuccess": "Admin account deleted",
+      "adminCreateSuccess": "Admin account created",
+      "adminDisabledOwner": "The owner account is always enabled"
     },
     "xray": {
       "save": "Зберегти",

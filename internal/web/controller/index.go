@@ -50,6 +50,27 @@ func (a *IndexController) initRouter(g *gin.RouterGroup) {
 	g.POST("/login", middleware.CSRFMiddleware(), a.login)
 	g.POST("/logout", middleware.CSRFMiddleware(), a.logout)
 	g.POST("/getTwoFactorEnable", middleware.CSRFMiddleware(), a.getTwoFactorEnable)
+	g.GET("/me", a.me)
+}
+
+// me reports the logged-in account so the frontend can shape the UI to the
+// account's role without a second round trip.
+func (a *IndexController) me(c *gin.Context) {
+	user := session.GetLoginUser(c)
+	if user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "msg": "not logged in"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"msg":     "",
+		"data": gin.H{
+			"id":       user.Id,
+			"username": user.Username,
+			"role":     user.Role,
+			"isAdmin":  user.IsAdmin(),
+		},
+	})
 }
 
 // sponsors is public so the login page can render its slot; failures stay silent.

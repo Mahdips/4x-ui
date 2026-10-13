@@ -170,6 +170,16 @@ func (s *InboundService) addClientTraffic(tx *gorm.DB, traffics []*xray.ClientTr
 		return err
 	}
 
+	// Scale this poll's bytes by each inbound's usage multiplier before the
+	// atomic add, so a shared client row bills the right amount per inbound.
+	scaledByEmail, scaleErr := s.scaleClientTrafficByEmail(tx, traffics)
+	if scaleErr != nil {
+		// Multiplier accounting must never block traffic commit: the raw delta
+		// is still the real usage the core reported.
+		logger.Warning("usage multiplier scaling failed, applying raw traffic:", scaleErr)
+		scaledByEmail = nil
+	}
+
 	// Index by email for O(N) merge.
 	trafficByEmail := make(map[string]*xray.ClientTraffic, len(traffics))
 	for i := range traffics {
@@ -188,6 +198,13 @@ func (s *InboundService) addClientTraffic(tx *gorm.DB, traffics []*xray.ClientTr
 		if !ok || (t.Up == 0 && t.Down == 0) {
 			continue
 		}
+		up, down := t.Up, t.Down
+		if scaled, ok := scaledByEmail[ct.Email]; ok {
+			up, down = scaled.Up, scaled.Down
+		}
+		if up == 0 && down == 0 {
+			continue
+		}
 		if err = tx.Exec(
 			fmt.Sprintf(
 				`UPDATE client_traffics SET up = %s, down = %s, last_online = %s WHERE email = ?`,
@@ -195,7 +212,7 @@ func (s *InboundService) addClientTraffic(tx *gorm.DB, traffics []*xray.ClientTr
 				database.ClampedAddExpr("down"),
 				database.GreatestExpr("last_online", "?"),
 			),
-			t.Up, t.Down, now, ct.Email,
+			up, down, now, ct.Email,
 		).Error; err != nil {
 			return fmt.Errorf("update traffic for %s: %w", ct.Email, err)
 		}

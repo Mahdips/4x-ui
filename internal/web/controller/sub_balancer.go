@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mhsanaei/3x-ui/v3/internal/web/middleware"
 	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
 )
 
@@ -21,10 +22,11 @@ func NewSubBalancerController(g *gin.RouterGroup) *SubBalancerController {
 	a := &SubBalancerController{}
 	g = g.Group("/sub-balancers")
 	g.GET("", a.list)
-	g.POST("", a.create)
-	g.POST("/:id", a.update)
-	g.DELETE("/:id", a.del)
-	g.POST("/:id/del", a.del)
+	admin := g.Group("", middleware.AdminOnly())
+	admin.POST("", a.create)
+	admin.POST("/:id", a.update)
+	admin.DELETE("/:id", a.del)
+	admin.POST("/:id/del", a.del)
 	return a
 }
 

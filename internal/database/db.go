@@ -115,6 +115,43 @@ func migrateInboundExcludeFromSubColumn() error {
 	return migrator.AddColumn(&model.Inbound{}, "ExcludeFromSub")
 }
 
+// migrateInboundUsageMultiplierColumn adds the usage_multiplier column to
+// existing inbounds. AutoMigrate creates it on fresh databases; this backfills
+// the real-usage default (1.00) on upgraded ones.
+func migrateInboundUsageMultiplierColumn() error {
+	migrator := db.Migrator()
+	if !migrator.HasTable(&model.Inbound{}) || migrator.HasColumn(&model.Inbound{}, "usage_multiplier") {
+		return nil
+	}
+	if err := migrator.AddColumn(&model.Inbound{}, "UsageMultiplier"); err != nil {
+		return err
+	}
+	return db.Model(&model.Inbound{}).Where("usage_multiplier IS NULL OR usage_multiplier = 0").
+		Update("usage_multiplier", 1.00).Error
+}
+
+// migrateUserRoleColumn adds the role column to existing users. The first user
+// keeps full control: it defaults to admin, and IsAdmin also treats user id 1 as
+// an owner regardless of the stored value.
+func migrateUserRoleColumn() error {
+	migrator := db.Migrator()
+	if !migrator.HasTable(&model.User{}) || migrator.HasColumn(&model.User{}, "role") {
+		return nil
+	}
+	if err := migrator.AddColumn(&model.User{}, "Role"); err != nil {
+		return err
+	}
+	if err := migrator.AddColumn(&model.User{}, "Enabled"); err != nil {
+		return err
+	}
+	if err := db.Model(&model.User{}).Where("role IS NULL OR role = ''").
+		Update("role", model.UserRoleAdmin).Error; err != nil {
+		return err
+	}
+	return db.Model(&model.User{}).Where("enabled IS NULL").
+		Update("enabled", true).Error
+}
+
 func initModels() error {
 	if err := migrateClientTrafficLastSubFetchColumn(); err != nil {
 		return err
@@ -123,6 +160,12 @@ func initModels() error {
 		return err
 	}
 	if err := migrateInboundExcludeFromSubColumn(); err != nil {
+		return err
+	}
+	if err := migrateInboundUsageMultiplierColumn(); err != nil {
+		return err
+	}
+	if err := migrateUserRoleColumn(); err != nil {
 		return err
 	}
 	models := allModels()

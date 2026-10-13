@@ -52,6 +52,10 @@ func (s *UserService) CheckUser(username string, password string, twoFactorCode 
 		return nil, err
 	}
 
+	if !user.IsLoginAllowed() {
+		return nil, errors.New("account is disabled")
+	}
+
 	if !crypto.CheckPasswordHash(user.Password, password) {
 		ldapEnabled, _ := s.settingService.GetLdapEnable()
 		if !ldapEnabled {
@@ -167,4 +171,94 @@ func (s *UserService) UpdateFirstUser(username string, password string) error {
 	user.Password = hashedPassword
 	user.LoginEpoch++
 	return db.Save(user).Error
+}
+
+// AdminSummary is the limited view of an admin account shown in the settings page.
+type AdminSummary struct {
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+	Enabled  bool   `json:"enabled"`
+	IsOwner  bool   `json:"isOwner"`
+}
+
+// ListAdmins returns every admin account without exposing password hashes.
+func (s *UserService) ListAdmins() ([]AdminSummary, error) {
+	db := database.GetDB()
+	var users []model.User
+	if err := db.Model(model.User{}).Order("id").Find(&users).Error; err != nil {
+		return nil, err
+	}
+	out := make([]AdminSummary, 0, len(users))
+	for _, u := range users {
+		out = append(out, AdminSummary{
+			Id:       u.Id,
+			Username: u.Username,
+			Role:     u.Role,
+			Enabled:  u.Enabled,
+			IsOwner:  u.Id == 1,
+		})
+	}
+	return out, nil
+}
+
+// CreateAdmin adds a panel account. role must be admin or limited; anything
+// else falls back to limited so a bad request never grants full control.
+func (s *UserService) CreateAdmin(username, password, role string) error {
+	if username == "" || password == "" {
+		return errors.New("username and password can not be empty")
+	}
+	if role != model.UserRoleAdmin {
+		role = model.UserRoleLimited
+	}
+	db := database.GetDB()
+	var count int64
+	if err := db.Model(model.User{}).Where("username = ?", username).Count(&count).Error; err != nil {
+		return err
+	}
+	if count > 0 {
+		return errors.New("username already exists")
+	}
+	hashedPassword, err := crypto.HashPasswordAsBcrypt(password)
+	if err != nil {
+		return err
+	}
+	return db.Create(&model.User{
+		Username: username,
+		Password: hashedPassword,
+		Role:     role,
+		Enabled:  true,
+	}).Error
+}
+
+// DeleteAdmin removes an account. The first user is the owner and is protected.
+func (s *UserService) DeleteAdmin(id int) error {
+	if id == 1 {
+		return errors.New("the owner account can not be deleted")
+	}
+	db := database.GetDB()
+	res := db.Where("id = ?", id).Delete(&model.User{})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("account not found")
+	}
+	return s.BumpLoginEpoch()
+}
+
+// SetAdminEnabled toggles an account's login. The owner stays enabled.
+func (s *UserService) SetAdminEnabled(id int, enabled bool) error {
+	if id == 1 {
+		return errors.New("the owner account can not be disabled")
+	}
+	db := database.GetDB()
+	res := db.Model(&model.User{}).Where("id = ?", id).Update("enabled", enabled)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errors.New("account not found")
+	}
+	return s.BumpLoginEpoch()
 }

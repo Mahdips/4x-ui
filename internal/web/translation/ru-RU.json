@@ -729,7 +729,9 @@
         "autoSystemDnsToGateway": "Системный DNS на шлюз",
         "autoSystemDnsToGatewayTooltip": "Только Linux: направляет systemd-resolved на шлюз TUN, чтобы системные запросы шли через Xray. Нужен шлюз; при ошибке TUN не запустится.",
         "autoSystemWfpBlockLeak": "Блокировка утечек (WFP)",
-        "autoSystemWfpBlockLeakTooltip": "Только Windows, вместе с авто-маршрутами системы: dns удерживает DNS внутри TUN (нужны DNS-серверы), misconfigtun блокирует версию IP, которую ни один маршрут не ведёт в TUN."
+        "autoSystemWfpBlockLeakTooltip": "Только Windows, вместе с авто-маршрутами системы: dns удерживает DNS внутри TUN (нужны DNS-серверы), misconfigtun блокирует версию IP, которую ни один маршрут не ведёт в TUN.",
+        "usageMultiplier": "Usage multiplier",
+        "usageMultiplierHelp": "Scales this inbound's counted traffic before it is billed against client quotas. 1.0 means real usage, 2.0 bills twice, 0.5 bills half."
       },
       "info": {
         "mode": "Режим",
@@ -1776,7 +1778,23 @@
       "subIncyResolveDnsDomainDesc": "URL DoH-сервера, обычно заканчивается на /dns-query.",
       "subIncyResolveDnsIp": "IP DoH-сервера",
       "subIncyResolveDnsIpDesc": "IP DoH-сервера, нужен для bootstrap.",
-      "subIncyGroupRouting": "Маршрутизация"
+      "subIncyGroupRouting": "Маршрутизация",
+      "admins": "Panel admins",
+      "adminsDesc": "Accounts that can sign in to this panel. A limited admin manages inbounds and clients only.",
+      "adminRole": "Role",
+      "adminRoleAdmin": "Full admin",
+      "adminRoleLimited": "Limited admin",
+      "adminRoleAdminDesc": "Full control: inbounds, clients, settings, xray config, backup, server.",
+      "adminRoleLimitedDesc": "Inbounds and clients only. Cannot open settings, xray config, backup or server control.",
+      "addAdmin": "Add admin",
+      "adminUsername": "Username",
+      "adminPassword": "Password",
+      "adminEnabled": "Enabled",
+      "adminOwner": "Owner",
+      "adminDeleteConfirm": "Delete this admin account?",
+      "adminDeleteSuccess": "Admin account deleted",
+      "adminCreateSuccess": "Admin account created",
+      "adminDisabledOwner": "The owner account is always enabled"
     },
     "xray": {
       "importRules": "Импорт правил",

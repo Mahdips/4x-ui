@@ -27,24 +27,26 @@ func NewNodeController(g *gin.RouterGroup) *NodeController {
 }
 
 func (a *NodeController) initRouter(g *gin.RouterGroup) {
+	admin := g.Group("", middleware.AdminOnly())
+
 	g.GET("/list", a.list)
 	g.GET("/get/:id", a.get)
 	g.GET("/webCert/:id", a.webCert)
-
-	g.POST("/add", a.add)
-	g.POST("/update/:id", a.update)
-	g.POST("/del/:id", a.del)
-	g.POST("/setEnable/:id", a.setEnable)
-
-	g.POST("/test", a.test)
-	g.POST("/certFingerprint", a.certFingerprint)
-	g.POST("/inbounds", a.inbounds)
-	g.POST("/probe/:id", a.probe)
-	g.POST("/updatePanel", a.updatePanel)
 	g.GET("/history/:id/:metric/:bucket", a.history)
-	g.POST("/mtls/ca", a.mtlsCa)
-	g.POST("/mtls/trustCA", a.setMtlsTrustCA)
-	g.POST("/mtls/reloadClient", a.reloadMtlsClient)
+
+	admin.POST("/add", a.add)
+	admin.POST("/update/:id", a.update)
+	admin.POST("/del/:id", a.del)
+	admin.POST("/setEnable/:id", a.setEnable)
+
+	admin.POST("/test", a.test)
+	admin.POST("/certFingerprint", a.certFingerprint)
+	admin.POST("/inbounds", a.inbounds)
+	admin.POST("/probe/:id", a.probe)
+	admin.POST("/updatePanel", a.updatePanel)
+	admin.POST("/mtls/ca", a.mtlsCa)
+	admin.POST("/mtls/trustCA", a.setMtlsTrustCA)
+	admin.POST("/mtls/reloadClient", a.reloadMtlsClient)
 }
 
 // reloadMtlsClient validates the credential currently stored by the master and

@@ -780,6 +780,16 @@ export default function InboundFormModal({
         />
       </FormField>
 
+      <FormField
+        name="usageMultiplier"
+        label={labelWithHint(
+          t('pages.inbounds.form.usageMultiplier'),
+          t('pages.inbounds.form.usageMultiplierHelp'),
+        )}
+        rules={{ validate: rhfZodValidate(InboundDbFieldsSchema.shape.usageMultiplier) }}
+      >
+        <InputNumber min={0} step={0.5} precision={2} style={{ width: '100%' }} />
+      </FormField>
       {trafficReset === 'monthly' && (
         <FormField
           name="trafficResetDay"

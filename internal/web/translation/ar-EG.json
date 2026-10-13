@@ -728,7 +728,9 @@
         "autoSystemDnsToGateway": "DNS النظام إلى البوابة",
         "autoSystemDnsToGatewayTooltip": "على لينكس بس: بيوجّه systemd-resolved لبوابة TUN عشان استعلامات النظام تعدّي من Xray. محتاج بوابة، والـTUN مش هيشتغل لو ده فشل.",
         "autoSystemWfpBlockLeak": "منع التسريب (WFP)",
-        "autoSystemWfpBlockLeakTooltip": "على ويندوز بس، مع Auto system routes: ‏dns بيخلّي DNS جوّه الـTUN (محتاج سيرفرات DNS)، وmisconfigtun بيمنع نسخة IP مفيش مسار بيوديها للـTUN."
+        "autoSystemWfpBlockLeakTooltip": "على ويندوز بس، مع Auto system routes: ‏dns بيخلّي DNS جوّه الـTUN (محتاج سيرفرات DNS)، وmisconfigtun بيمنع نسخة IP مفيش مسار بيوديها للـTUN.",
+        "usageMultiplier": "Usage multiplier",
+        "usageMultiplierHelp": "Scales this inbound's counted traffic before it is billed against client quotas. 1.0 means real usage, 2.0 bills twice, 0.5 bills half."
       },
       "info": {
         "mode": "الوضع",
@@ -1776,7 +1778,23 @@
       "subIncyResolveDnsDomainDesc": "رابط سيرفر DoH، غالبًا ينتهي بـ /dns-query.",
       "subIncyResolveDnsIp": "IP سيرفر DoH",
       "subIncyResolveDnsIpDesc": "عنوان IP لسيرفر DoH للتهيئة.",
-      "subIncyGroupRouting": "التوجيه"
+      "subIncyGroupRouting": "التوجيه",
+      "admins": "Panel admins",
+      "adminsDesc": "Accounts that can sign in to this panel. A limited admin manages inbounds and clients only.",
+      "adminRole": "Role",
+      "adminRoleAdmin": "Full admin",
+      "adminRoleLimited": "Limited admin",
+      "adminRoleAdminDesc": "Full control: inbounds, clients, settings, xray config, backup, server.",
+      "adminRoleLimitedDesc": "Inbounds and clients only. Cannot open settings, xray config, backup or server control.",
+      "addAdmin": "Add admin",
+      "adminUsername": "Username",
+      "adminPassword": "Password",
+      "adminEnabled": "Enabled",
+      "adminOwner": "Owner",
+      "adminDeleteConfirm": "Delete this admin account?",
+      "adminDeleteSuccess": "Admin account deleted",
+      "adminCreateSuccess": "Admin account created",
+      "adminDisabledOwner": "The owner account is always enabled"
     },
     "xray": {
       "save": "احفظ",

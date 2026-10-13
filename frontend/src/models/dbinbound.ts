@@ -48,6 +48,7 @@ export type DBInboundInit = Partial<{
   disableFlow: boolean;
   originNodeGuid: string;
   fallbackParent: FallbackParentRef | null;
+  usageMultiplier: number;
 }>;
 
 export function coerceInboundJsonField(value: unknown): Record<string, unknown> {
@@ -98,6 +99,7 @@ export class DBInbound {
   disableFlow: boolean;
   originNodeGuid: string;
   fallbackParent: FallbackParentRef | null;
+  usageMultiplier: number;
 
   private _clientStatsMap: Map<string, ClientStats> | null = null;
 
@@ -130,6 +132,7 @@ export class DBInbound {
     this.disableFlow = false;
     this.originNodeGuid = '';
     this.fallbackParent = null;
+    this.usageMultiplier = 1;
     if (data == null) {
       return;
     }
@@ -213,6 +216,11 @@ export class DBInbound {
 
   get isExpiry(): boolean {
     return this.expiryTime < new Date().getTime();
+  }
+
+  // 0 and negative are stored as "no multiplier" (1); the form omits the field.
+  get effectiveUsageMultiplier(): number {
+    return this.usageMultiplier > 0 ? this.usageMultiplier : 1;
   }
 
   invalidateCache(): void {

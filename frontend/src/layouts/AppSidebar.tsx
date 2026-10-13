@@ -44,6 +44,7 @@ import { formatPanelVersion } from '@/lib/panel-version';
 import { pauseAnimationsUntilLeave, useTheme } from '@/hooks/useTheme';
 import { useAllSettings } from '@/api/queries/useAllSettings';
 import { useCommandPalette } from '@/components/command-palette/useCommandPalette';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import SponsorSlot from '@/components/sponsor/SponsorSlot';
 import './AppSidebar.css';
 
@@ -223,7 +224,7 @@ export default function AppSidebar() {
   const currentTheme: 'light' | 'dark' = isDark ? 'dark' : 'light';
   const panelVersion = window.X_UI_CUR_VER || '';
 
-  const tabs = useMemo<{ key: string; icon: IconName; title: string }[]>(
+  const tabs = useMemo<{ key: string; icon: IconName; title: string; adminOnly?: boolean }[]>(
     () => [
       { key: '/', icon: 'dashboard', title: t('menu.dashboard') },
       { key: '/inbounds', icon: 'inbound', title: t('menu.inbounds') },
@@ -233,16 +234,20 @@ export default function AppSidebar() {
       { key: '/hosts', icon: 'hosts', title: t('menu.hosts') },
       { key: '/outbound', icon: 'outbound', title: t('menu.outbounds') },
       { key: '/routing', icon: 'routing', title: t('menu.routing') },
-      { key: '/settings', icon: 'setting', title: t('menu.settings') },
-      { key: '/xray', icon: 'tool', title: t('menu.xray') },
-      { key: '/api-docs', icon: 'apidocs', title: t('menu.apiDocs') },
+      { key: '/settings', icon: 'setting', title: t('menu.settings'), adminOnly: true },
+      { key: '/xray', icon: 'tool', title: t('menu.xray'), adminOnly: true },
+      { key: '/api-docs', icon: 'apidocs', title: t('menu.apiDocs'), adminOnly: true },
       { key: '/sponsors', icon: 'sponsors', title: t('menu.sponsors') },
       { key: LOGOUT_KEY, icon: 'logout', title: t('logout') },
     ],
     [t],
   );
 
-  const navItems = useMemo(() => tabs.filter((tab) => tab.icon !== 'logout'), [tabs]);
+  const currentUser = useCurrentUser();
+  const navItems = useMemo(
+    () => tabs.filter((tab) => tab.icon !== 'logout' && (!tab.adminOnly || currentUser?.isAdmin)),
+    [tabs, currentUser],
+  );
   const utilItems = useMemo(() => tabs.filter((tab) => tab.icon === 'logout'), [tabs]);
 
   const settingsChildren = useMemo<NonNullable<MenuProps['items']>>(() => {
@@ -288,6 +293,11 @@ export default function AppSidebar() {
         label: t('pages.settings.subBalancers.menu'),
       });
     }
+    children.push({
+      key: '/settings#admins',
+      icon: <TeamOutlined />,
+      label: t('pages.settings.admins'),
+    });
     return children;
   }, [t, showSubFormats, showSubBalancers]);
 

@@ -231,6 +231,14 @@ export const sections: readonly Section[] = [
       },
       {
         method: 'GET',
+        path: '/me',
+        summary:
+          'Report the logged-in account: id, username, role and whether it holds full admin control. A limited role (role !== "admin") can manage inbounds and clients but is refused by the settings, xray config, server-control, backup and user endpoints.',
+        response:
+          '{\n  "success": true,\n  "data": {\n    "id": 1,\n    "username": "admin",\n    "role": "admin",\n    "isAdmin": true\n  }\n}',
+      },
+      {
+        method: 'GET',
         path: '/csrf-token',
         summary:
           'Mint a CSRF token for the current session. The SPA replays it in the X-CSRF-Token header on unsafe requests. Bearer-token callers can skip this — the middleware short-circuits CSRF for authenticated API requests.',
@@ -1988,6 +1996,57 @@ export const sections: readonly Section[] = [
         path: '/panel/api/setting/getDefaultJsonConfig',
         summary:
           'Return the built-in default Xray JSON config template that ships with this panel version.',
+      },
+      {
+        method: 'GET',
+        path: '/panel/api/setting/admins',
+        summary:
+          'List every panel admin account without exposing password hashes. Requires a full admin session.',
+        response:
+          '{\n  "success": true,\n  "obj": [\n    {\n      "id": 1,\n      "username": "admin",\n      "role": "admin",\n      "enabled": true,\n      "isOwner": true\n    },\n    {\n      "id": 2,\n      "username": "support",\n      "role": "limited",\n      "enabled": true,\n      "isOwner": false\n    }\n  ]\n}',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/setting/admins/create',
+        summary:
+          'Create a new panel admin account. A role other than "admin" is stored as "limited". Requires a full admin session.',
+        params: [
+          { name: 'username', in: 'body', type: 'string', desc: 'Login name, must be unique.' },
+          { name: 'password', in: 'body', type: 'string', desc: 'Login password.' },
+          {
+            name: 'role',
+            in: 'body',
+            type: 'string',
+            desc: '"admin" for full control, anything else for limited (inbounds/clients only).',
+          },
+        ],
+        body: '{\n  "username": "support",\n  "password": "secret",\n  "role": "limited"\n}',
+        response: '{\n  "success": true,\n  "msg": ""\n}',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/setting/admins/delete/:id',
+        summary:
+          'Delete a panel admin account by id. The owner account (id 1) is protected and can never be deleted. Requires a full admin session.',
+        params: [{ name: 'id', in: 'path', type: 'number', desc: 'Account id to delete.' }],
+        response: '{\n  "success": true,\n  "msg": ""\n}',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/setting/admins/setEnabled/:id',
+        summary:
+          'Enable or disable a panel admin account. A disabled account cannot log in, and its existing sessions are invalidated. The owner account is always enabled. Requires a full admin session.',
+        params: [
+          { name: 'id', in: 'path', type: 'number', desc: 'Account id to update.' },
+          {
+            name: 'enabled',
+            in: 'body',
+            type: 'boolean',
+            desc: 'true to allow login, false to block it.',
+          },
+        ],
+        body: '{\n  "enabled": false\n}',
+        response: '{\n  "success": true,\n  "msg": ""\n}',
       },
     ],
   },

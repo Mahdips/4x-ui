@@ -14,6 +14,7 @@ import (
 	"github.com/mhsanaei/3x-ui/v3/internal/util/netsafe"
 	"github.com/mhsanaei/3x-ui/v3/internal/web/entity"
 	"github.com/mhsanaei/3x-ui/v3/internal/web/global"
+	"github.com/mhsanaei/3x-ui/v3/internal/web/middleware"
 	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
 	"github.com/mhsanaei/3x-ui/v3/internal/web/service/panel"
 	"github.com/mhsanaei/3x-ui/v3/internal/web/websocket"
@@ -67,23 +68,27 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	g.GET("/clientIps", a.getClientIps)
 	g.GET("/fail2banStatus", a.getFail2banStatus)
 
-	g.POST("/stopXrayService", a.stopXrayService)
-	g.POST("/restartXrayService", a.restartXrayService)
-	g.POST("/installXray/:version", a.installXray)
-	g.POST("/updatePanel", a.updatePanel)
-	g.POST("/setUpdateChannel", a.setUpdateChannel)
-	g.POST("/updateGeofile", a.updateGeofile)
-	g.POST("/updateGeofile/:fileName", a.updateGeofile)
-	g.POST("/logs/:count", a.getLogs)
-	g.POST("/xraylogs/:count", a.getXrayLogs)
-	g.POST("/amneziawglogs/:count", a.getAmneziaWGLogs)
-	g.POST("/importDB", a.importDB)
-	g.POST("/getNewEchCert", a.getNewEchCert)
-	g.POST("/getCertHash", a.getCertHash)
-	g.POST("/getRemoteCertHash", a.getRemoteCertHash)
-	g.POST("/scanRealityTarget", a.scanRealityTarget)
-	g.POST("/scanRealityTargets", a.scanRealityTargets)
-	g.POST("/clientIps", a.setClientIps)
+	// Server control, panel update, backup import and log reads are full-admin
+	// only; a limited admin may still watch status and manage clients' IPs.
+	admin := g.Group("", middleware.AdminOnly())
+
+	admin.POST("/stopXrayService", a.stopXrayService)
+	admin.POST("/restartXrayService", a.restartXrayService)
+	admin.POST("/installXray/:version", a.installXray)
+	admin.POST("/updatePanel", a.updatePanel)
+	admin.POST("/setUpdateChannel", a.setUpdateChannel)
+	admin.POST("/updateGeofile", a.updateGeofile)
+	admin.POST("/updateGeofile/:fileName", a.updateGeofile)
+	admin.POST("/logs/:count", a.getLogs)
+	admin.POST("/xraylogs/:count", a.getXrayLogs)
+	admin.POST("/amneziawglogs/:count", a.getAmneziaWGLogs)
+	admin.POST("/importDB", a.importDB)
+	admin.POST("/getNewEchCert", a.getNewEchCert)
+	admin.POST("/getCertHash", a.getCertHash)
+	admin.POST("/getRemoteCertHash", a.getRemoteCertHash)
+	admin.POST("/scanRealityTarget", a.scanRealityTarget)
+	admin.POST("/scanRealityTargets", a.scanRealityTargets)
+	admin.POST("/clientIps", a.setClientIps)
 }
 
 // startTask registers the @2s ticker that refreshes server status, samples

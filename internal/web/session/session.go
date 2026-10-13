@@ -110,6 +110,15 @@ func IsLogin(c *gin.Context) bool {
 	return GetLoginUser(c) != nil
 }
 
+// IsAdmin reports whether the current request comes from a user with full panel
+// control. A limited admin can still reach inbounds and clients, so route guards
+// must call this (not IsLogin) for settings, xray config, backup, server control
+// and user management.
+func IsAdmin(c *gin.Context) bool {
+	user := GetLoginUser(c)
+	return user != nil && user.IsAdmin()
+}
+
 func sessionUserID(obj any) (int, bool) {
 	switch v := obj.(type) {
 	case int:

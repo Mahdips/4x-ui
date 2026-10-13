@@ -37,12 +37,50 @@ const (
 	MASQUE      Protocol = "masque"
 )
 
+// Role constants for User.Role. The first user is always an admin.
+const (
+	// UserRoleAdmin has full control over the panel: inbounds, clients, settings,
+	// xray config, backup/restore, server restart, API tokens and users.
+	UserRoleAdmin = "admin"
+	// UserRoleLimited can manage inbounds and clients only. It cannot reach the
+	// panel settings, xray config, backup, server control, API tokens or users.
+	UserRoleLimited = "limited"
+)
+
+// IsAdmin reports whether this user has full panel control.
+func (u *User) IsAdmin() bool {
+	// The first user (id 1) is the owner and is always treated as an admin,
+	// even before the role column exists on upgraded databases.
+	return u.Role == UserRoleAdmin || u.Id == 1
+}
+
 // User represents a user account in the 3x-ui panel.
 type User struct {
 	Id         int    `json:"id" gorm:"primaryKey;autoIncrement"`
 	Username   string `json:"username"`
 	Password   string `json:"password"`
 	LoginEpoch int64  `json:"-" gorm:"default:0"`
+	// Role controls what this account may reach. Defaults to admin so an
+	// upgraded database keeps its existing single account in control; a new
+	// account created from the settings page defaults to limited.
+	Role string `json:"role" gorm:"default:admin"`
+	// Enabled gates login. The first user is the owner and cannot be disabled.
+	Enabled bool `json:"enabled" gorm:"default:true"`
+}
+
+// IsLoginAllowed reports whether this account may log in at all.
+func (u *User) IsLoginAllowed() bool {
+	return u.Enabled && u.Id != 1
+}
+
+// CanBeDeleted reports whether a full admin may remove this account.
+func (u *User) CanBeDeleted() bool {
+	return u.Id != 1
+}
+
+// CanBeDisabled reports whether a full admin may disable this account.
+func (u *User) CanBeDisabled() bool {
+	return u.Id != 1
 }
 
 // Inbound represents an Xray inbound configuration with traffic statistics and settings.
@@ -61,6 +99,11 @@ type Inbound struct {
 	TrafficResetDay      int                  `json:"trafficResetDay" form:"trafficResetDay" gorm:"default:1" validate:"omitempty,gte=1,lte=31" example:"1"`                                                        // Day of month for monthly traffic resets
 	LastTrafficResetTime int64                `json:"lastTrafficResetTime" form:"lastTrafficResetTime" gorm:"default:0"`                                                                                            // Last traffic reset timestamp
 	ClientStats          []xray.ClientTraffic `gorm:"foreignKey:InboundId;references:Id" json:"clientStats" form:"clientStats"`                                                                                     // Client traffic statistics
+
+	// UsageMultiplier scales this inbound's counted traffic before it is
+	// written to client quotas: counted = actual * UsageMultiplier. 0 and 1
+	// both mean real usage (normalizeUsageMultiplier); 2 bills twice, 0.5 half.
+	UsageMultiplier float64 `json:"usageMultiplier" form:"usageMultiplier" gorm:"column:usage_multiplier;default:1.00" example:"1"`
 
 	// Xray configuration fields
 	Listen            string   `json:"listen" form:"listen"`

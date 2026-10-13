@@ -728,7 +728,9 @@
         "autoSystemDnsToGateway": "DNS del sistema a la puerta de enlace",
         "autoSystemDnsToGatewayTooltip": "Solo Linux: apunta systemd-resolved a la puerta de enlace del TUN para que las consultas del sistema pasen por Xray. Necesita una puerta de enlace y el TUN no arranca si esto falla.",
         "autoSystemWfpBlockLeak": "Bloquear fugas (WFP)",
-        "autoSystemWfpBlockLeakTooltip": "Solo Windows, con Auto system routes: dns mantiene el DNS dentro del TUN (necesita servidores DNS) y misconfigtun bloquea una versión de IP que ninguna ruta envía al TUN."
+        "autoSystemWfpBlockLeakTooltip": "Solo Windows, con Auto system routes: dns mantiene el DNS dentro del TUN (necesita servidores DNS) y misconfigtun bloquea una versión de IP que ninguna ruta envía al TUN.",
+        "usageMultiplier": "Usage multiplier",
+        "usageMultiplierHelp": "Scales this inbound's counted traffic before it is billed against client quotas. 1.0 means real usage, 2.0 bills twice, 0.5 bills half."
       },
       "info": {
         "mode": "Modo",
@@ -1776,7 +1778,23 @@
       "subIncyResolveDnsDomainDesc": "URL del servidor DoH, normalmente acaba en /dns-query.",
       "subIncyResolveDnsIp": "IP del servidor DoH",
       "subIncyResolveDnsIpDesc": "IP del servidor DoH para el arranque.",
-      "subIncyGroupRouting": "Enrutado"
+      "subIncyGroupRouting": "Enrutado",
+      "admins": "Panel admins",
+      "adminsDesc": "Accounts that can sign in to this panel. A limited admin manages inbounds and clients only.",
+      "adminRole": "Role",
+      "adminRoleAdmin": "Full admin",
+      "adminRoleLimited": "Limited admin",
+      "adminRoleAdminDesc": "Full control: inbounds, clients, settings, xray config, backup, server.",
+      "adminRoleLimitedDesc": "Inbounds and clients only. Cannot open settings, xray config, backup or server control.",
+      "addAdmin": "Add admin",
+      "adminUsername": "Username",
+      "adminPassword": "Password",
+      "adminEnabled": "Enabled",
+      "adminOwner": "Owner",
+      "adminDeleteConfirm": "Delete this admin account?",
+      "adminDeleteSuccess": "Admin account deleted",
+      "adminCreateSuccess": "Admin account created",
+      "adminDisabledOwner": "The owner account is always enabled"
     },
     "xray": {
       "save": "Guardar configuración",

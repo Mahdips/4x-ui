@@ -29,6 +29,12 @@ type updateUserForm struct {
 	TwoFactorCode string `json:"twoFactorCode" form:"twoFactorCode"`
 }
 
+type createAdminForm struct {
+	Username string `json:"username" form:"username"`
+	Password string `json:"password" form:"password"`
+	Role     string `json:"role" form:"role"`
+}
+
 // updateSettingForm carries the persisted settings plus request-scoped fields
 // that must never land in the settings table: the 2FA confirmation code and
 // the explicit clear flags for redacted secrets (a blank secret alone means
@@ -65,22 +71,29 @@ func NewSettingController(g *gin.RouterGroup) *SettingController {
 // initRouter sets up the routes for settings management.
 func (a *SettingController) initRouter(g *gin.RouterGroup) {
 	g = g.Group("/setting")
+	admin := g.Group("", middleware.AdminOnly())
 
 	g.POST("/all", a.getAllSetting)
 	g.POST("/defaultSettings", a.getDefaultSettings)
 	g.POST("/factoryDefaults", a.getFactoryDefaults)
-	g.POST("/update", a.updateSetting)
 	g.POST("/validateRegex", a.validateRegex)
-	g.POST("/updateUser", a.updateUser)
-	g.POST("/restartPanel", a.restartPanel)
-	g.GET("/getDefaultJsonConfig", a.getDefaultXrayConfig)
-	g.GET("/apiTokens", a.listApiTokens)
-	g.POST("/apiTokens/create", a.createApiToken)
-	g.POST("/apiTokens/delete/:id", a.deleteApiToken)
-	g.POST("/apiTokens/setEnabled/:id", a.setApiTokenEnabled)
 	g.POST("/testSmtp", a.testSmtp)
 	g.POST("/testTgBot", a.testTgBot)
 	g.POST("/testDiscord", a.testDiscord)
+
+	admin.POST("/update", a.updateSetting)
+	admin.POST("/updateUser", a.updateUser)
+	admin.POST("/restartPanel", a.restartPanel)
+	admin.GET("/getDefaultJsonConfig", a.getDefaultXrayConfig)
+	admin.GET("/apiTokens", a.listApiTokens)
+	admin.POST("/apiTokens/create", a.createApiToken)
+	admin.POST("/apiTokens/delete/:id", a.deleteApiToken)
+	admin.POST("/apiTokens/setEnabled/:id", a.setApiTokenEnabled)
+
+	admin.GET("/admins", a.listAdmins)
+	admin.POST("/admins/create", a.createAdmin)
+	admin.POST("/admins/delete/:id", a.deleteAdmin)
+	admin.POST("/admins/setEnabled/:id", a.setAdminEnabled)
 }
 
 func (a *SettingController) validateRegex(c *gin.Context) {
@@ -391,4 +404,54 @@ func (a *SettingController) testDiscord(c *gin.Context) {
 		return
 	}
 	jsonMsg(c, I18nWeb(c, "pages.settings.discordTestSuccess"), nil)
+}
+
+// listAdmins returns every panel account without password hashes.
+func (a *SettingController) listAdmins(c *gin.Context) {
+	rows, err := a.userService.ListAdmins()
+	if err != nil {
+		jsonMsg(c, I18nWeb(c, "pages.settings.toasts.getSettings"), err)
+		return
+	}
+	jsonObj(c, rows, nil)
+}
+
+// createAdmin adds a panel account. A role other than admin is stored as limited.
+func (a *SettingController) createAdmin(c *gin.Context) {
+	form := &createAdminForm{}
+	if err := c.ShouldBind(form); err != nil {
+		jsonMsg(c, I18nWeb(c, "pages.settings.toasts.modifySettings"), err)
+		return
+	}
+	err := a.userService.CreateAdmin(form.Username, form.Password, form.Role)
+	jsonMsg(c, I18nWeb(c, "pages.settings.toasts.modifySettings"), err)
+}
+
+// deleteAdmin removes a panel account. The owner is protected.
+func (a *SettingController) deleteAdmin(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		jsonMsg(c, I18nWeb(c, "pages.settings.toasts.modifySettings"), err)
+		return
+	}
+	err = a.userService.DeleteAdmin(id)
+	jsonMsg(c, I18nWeb(c, "pages.settings.toasts.modifySettings"), err)
+}
+
+// setAdminEnabled toggles an account's login. The owner stays enabled.
+func (a *SettingController) setAdminEnabled(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		jsonMsg(c, I18nWeb(c, "pages.settings.toasts.modifySettings"), err)
+		return
+	}
+	form := &struct {
+		Enabled bool `json:"enabled" form:"enabled"`
+	}{}
+	if bindErr := c.ShouldBind(form); bindErr != nil {
+		jsonMsg(c, I18nWeb(c, "pages.settings.toasts.modifySettings"), bindErr)
+		return
+	}
+	err = a.userService.SetAdminEnabled(id, form.Enabled)
+	jsonMsg(c, I18nWeb(c, "pages.settings.toasts.modifySettings"), err)
 }

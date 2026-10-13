@@ -728,7 +728,9 @@
         "autoSystemDnsToGateway": "系统 DNS 指向网关",
         "autoSystemDnsToGatewayTooltip": "仅限 Linux：将 systemd-resolved 指向 TUN 网关，使系统解析经过 Xray。需要设置网关，失败时 TUN 不会启动。",
         "autoSystemWfpBlockLeak": "阻止泄漏 (WFP)",
-        "autoSystemWfpBlockLeakTooltip": "仅限 Windows，需配合自动系统路由：dns 让 DNS 只走 TUN（需设置 DNS 服务器），misconfigtun 阻止没有任何路由指向 TUN 的 IP 版本。"
+        "autoSystemWfpBlockLeakTooltip": "仅限 Windows，需配合自动系统路由：dns 让 DNS 只走 TUN（需设置 DNS 服务器），misconfigtun 阻止没有任何路由指向 TUN 的 IP 版本。",
+        "usageMultiplier": "Usage multiplier",
+        "usageMultiplierHelp": "Scales this inbound's counted traffic before it is billed against client quotas. 1.0 means real usage, 2.0 bills twice, 0.5 bills half."
       },
       "info": {
         "mode": "模式",
@@ -1776,7 +1778,23 @@
       "subIncyResolveDnsDomainDesc": "DoH 服务器 URL，通常以 /dns-query 结尾。",
       "subIncyResolveDnsIp": "DoH 服务器 IP",
       "subIncyResolveDnsIpDesc": "用于引导的 DoH 服务器 IP。",
-      "subIncyGroupRouting": "路由"
+      "subIncyGroupRouting": "路由",
+      "admins": "Panel admins",
+      "adminsDesc": "Accounts that can sign in to this panel. A limited admin manages inbounds and clients only.",
+      "adminRole": "Role",
+      "adminRoleAdmin": "Full admin",
+      "adminRoleLimited": "Limited admin",
+      "adminRoleAdminDesc": "Full control: inbounds, clients, settings, xray config, backup, server.",
+      "adminRoleLimitedDesc": "Inbounds and clients only. Cannot open settings, xray config, backup or server control.",
+      "addAdmin": "Add admin",
+      "adminUsername": "Username",
+      "adminPassword": "Password",
+      "adminEnabled": "Enabled",
+      "adminOwner": "Owner",
+      "adminDeleteConfirm": "Delete this admin account?",
+      "adminDeleteSuccess": "Admin account deleted",
+      "adminCreateSuccess": "Admin account created",
+      "adminDisabledOwner": "The owner account is always enabled"
     },
     "xray": {
       "importRules": "导入规则",
