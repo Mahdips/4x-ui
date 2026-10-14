@@ -58,8 +58,18 @@ enable/disable, delete.
 
 ### Install
 
-The bundled install/update scripts still point at upstream 3x-ui release
-assets, so build from source:
+One-line installer (builds the panel from source on the server):
+
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/Mahdips/4x-ui/main/install.sh)
+```
+
+It installs Go and Node where needed, clones the repo, builds the frontend and
+backend, fetches Xray-core from the XTLS/Xray-core releases, wires up the systemd service
+and fail2ban, and starts the panel. Re-running it upgrades an existing install
+in place — the database and settings are left untouched.
+
+Manual build:
 
 ```bash
 git clone https://github.com/Mahdips/4x-ui.git
@@ -123,8 +133,18 @@ GPL-3.0, inherited from 3x-ui.
 
 ### نصب
 
-اسکریپت‌های نصب و آپدیت داخل ریپو هنوز به releaseهای خود 3x-ui اشاره می‌کنند، پس
-از سورس بیلد کنید:
+نصب با یک دستور (پنل را روی سرور از سورس بیلد می‌کند):
+
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/Mahdips/4x-ui/main/install.sh)
+```
+
+این اسکریپت در صورت نیاز Go و Node را نصب می‌کند، ریپو را کلون می‌کند،
+فرانت‌اند و بک‌اند را بیلد می‌کند، Xray-core را از ریلیزهای XTLS/Xray-core
+می‌گیرد، سرویس systemd و fail2ban را تنظیم و پنل را استارت می‌کند. اجرای دوباره
+آن نصب قبلی را آپدیت می‌کند — دیتابیس و تنظیمات دست‌نخورده باقی می‌مانند.
+
+بیلد دستی:
 
 ```bash
 git clone https://github.com/Mahdips/4x-ui.git
