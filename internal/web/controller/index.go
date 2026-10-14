@@ -64,7 +64,7 @@ func (a *IndexController) me(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"msg":     "",
-		"data": gin.H{
+		"obj": gin.H{
 			"id":       user.Id,
 			"username": user.Username,
 			"role":     user.Role,

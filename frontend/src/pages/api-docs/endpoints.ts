@@ -235,7 +235,7 @@ export const sections: readonly Section[] = [
         summary:
           'Report the logged-in account: id, username, role and whether it holds full admin control. A limited role (role !== "admin") can manage inbounds and clients but is refused by the settings, xray config, server-control, backup and user endpoints.',
         response:
-          '{\n  "success": true,\n  "data": {\n    "id": 1,\n    "username": "admin",\n    "role": "admin",\n    "isAdmin": true\n  }\n}',
+          '{\n  "success": true,\n  "obj": {\n    "id": 1,\n    "username": "admin",\n    "role": "admin",\n    "isAdmin": true\n  }\n}',
       },
       {
         method: 'GET',
